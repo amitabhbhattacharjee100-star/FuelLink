@@ -1,0 +1,7 @@
+.env
+.dart_tool/
+build/
+*.log
+/bin/
+/flutter/
+/build/

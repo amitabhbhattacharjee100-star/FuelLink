@@ -1,0 +1,23 @@
+name: gas_price_compare
+description: Compare gas prices in Ontario and worldwide.
+version: 1.0.0+1
+
+environment:
+  sdk: '^3.11.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_maps_flutter: ^2.5.0
+  flutter_dotenv: ^6.0.0
+  google_mobile_ads: ^5.0.0
+  http: ^1.1.0
+  # Authentication & Firebase
+  google_sign_in: ^6.1.0
+  firebase_auth: ^4.10.0
+  firebase_core: ^2.20.0
+  cloud_firestore: ^4.13.0
+
+flutter:
+  assets:
+    - .env
