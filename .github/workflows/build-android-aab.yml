@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - copilot/create-aab-build-workflow
   pull_request:
     branches:
       - main
