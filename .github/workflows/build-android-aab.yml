@@ -1,0 +1,62 @@
+name: Build Android AAB
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - copilot/create-aab-build-workflow
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create .env for Flutter assets
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |
+          if [ -n "$ENV_FILE" ]; then
+            printf '%s' "$ENV_FILE" > .env
+            echo "Created .env from ENV_FILE secret."
+          else
+            echo "::warning::ENV_FILE secret is not set. Creating an empty .env so asset bundling can proceed."
+            : > .env
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android app bundle
+        run: flutter build appbundle --release
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab-${{ github.ref_name }}-${{ github.run_number }}
+          path: build/app/outputs/bundle/release/*.aab
+          if-no-files-found: error
