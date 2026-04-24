@@ -18,6 +18,8 @@ FuelLink uses environment variables to manage sensitive API keys and configurati
 | `GOOGLE_MAPS_API_KEY` | Google Cloud | Flutter app | ✅ | `AIzaSyD...` |
 | `GAS_PRICE_API_KEY` | RapidAPI | Flutter + Cloud Functions | ✅ | `xxxxxx.xxxxx...` |
 | `ADMOB_APP_ID` | Google AdMob | Flutter app | ✅ | `ca-app-pub-xxxxxxxx` |
+| `ADMOB_BANNER_ANDROID` | Google AdMob | Flutter app (banner ad) | ✅ | `ca-app-pub-XXXXXXXX/XXXXXXXX` |
+| `ADMOB_BANNER_IOS` | Google AdMob | Flutter app (banner ad) | ✅ | `ca-app-pub-XXXXXXXX/XXXXXXXX` |
 | `SENDGRID_API_KEY` | SendGrid | Cloud Functions | ✅ | `SG.xxxxx...` |
 | `SENDGRID_FROM_EMAIL` | SendGrid | Cloud Functions | ✅ | `daily@fuellink.app` |
 
@@ -135,6 +137,8 @@ GAS_PRICE_API_KEY=xxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # Google AdMob
 ADMOB_APP_ID=ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx
+ADMOB_BANNER_ANDROID=ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
+ADMOB_BANNER_IOS=ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx
 ```
 
 **Usage in Dart:**

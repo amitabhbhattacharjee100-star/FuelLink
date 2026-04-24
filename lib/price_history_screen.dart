@@ -55,7 +55,7 @@ class PriceHistoryScreen extends StatelessWidget {
                     Icon(Icons.bar_chart, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
                     Text(
-                      "No price history yet.\nCheck back after the first daily email is sent at 7 AM EST.",
+                      "No price history yet.\nData is recorded daily when the Cloud Function runs at 7 AM EST.",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey),
                     ),

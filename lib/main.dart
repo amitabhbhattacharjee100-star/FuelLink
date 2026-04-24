@@ -131,10 +131,15 @@ class _MapCompareScreenState extends State<MapCompareScreen> {
   }
 
   void _loadBannerAd() {
-    // Use test ad unit IDs; swap for real IDs in production
-    final adUnitId = Platform.isAndroid
-        ? 'ca-app-pub-3940256099942544/6300978111' // Android test
-        : 'ca-app-pub-3940256099942544/2934735716'; // iOS test
+    // TODO: Replace these test unit IDs with your real AdMob unit IDs from
+    // .env or Firebase Remote Config before publishing to production.
+    // Real IDs look like: ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX
+    final adUnitId = dotenv.env[Platform.isAndroid
+            ? 'ADMOB_BANNER_ANDROID'
+            : 'ADMOB_BANNER_IOS'] ??
+        (Platform.isAndroid
+            ? 'ca-app-pub-3940256099942544/6300978111' // Android test fallback
+            : 'ca-app-pub-3940256099942544/2934735716'); // iOS test fallback
 
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
@@ -249,8 +254,9 @@ class _MapCompareScreenState extends State<MapCompareScreen> {
       'Kitchener': LatLng(43.4516, -80.4925),
       'Windsor': LatLng(42.3149, -83.0364),
     };
+    final cityLower = city.toLowerCase();
     for (final entry in knownCities.entries) {
-      if (city.toLowerCase().contains(entry.key.toLowerCase())) {
+      if (cityLower.contains(entry.key.toLowerCase())) {
         return entry.value;
       }
     }
@@ -567,65 +573,75 @@ class _MapCompareScreenState extends State<MapCompareScreen> {
                 ),
                 const Divider(height: 1),
                 Expanded(
-                  child: ListView.builder(
-                    controller: scrollCtrl,
-                    itemCount: allStations.length,
-                    itemBuilder: (_, i) {
-                      final s = allStations[i];
-                      final price = s['price'] as double;
-                      final savings = gasPriceService.calculateSavings(
-                        stationAPrice!,
-                        price,
-                        tankSize: tankSize,
-                      );
-                      final isCheapest = i == 0;
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor:
-                              isCheapest ? Colors.green : Colors.orange[100],
-                          child: Text(
-                            "${i + 1}",
-                            style: TextStyle(
-                              color: isCheapest ? Colors.white : Colors.orange[800],
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          s['name'] as String,
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text(s['city'] as String,
-                            style: const TextStyle(fontSize: 12)),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              "${price.toStringAsFixed(1)}¢/L",
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    isCheapest ? Colors.green : Colors.black87,
+                  child: Builder(
+                    builder: (ctx2) {
+                      // Pre-calculate savings for all stations once
+                      final List<double> savingsList = allStations.map((s) {
+                        return gasPriceService.calculateSavings(
+                          stationAPrice!,
+                          s['price'] as double,
+                          tankSize: tankSize,
+                        );
+                      }).toList();
+                      return ListView.builder(
+                        controller: scrollCtrl,
+                        itemCount: allStations.length,
+                        itemBuilder: (_, i) {
+                          final s = allStations[i];
+                          final price = s['price'] as double;
+                          final savings = savingsList[i];
+                          final isCheapest = i == 0;
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor:
+                                  isCheapest ? Colors.green : Colors.orange[100],
+                              child: Text(
+                                "${i + 1}",
+                                style: TextStyle(
+                                  color: isCheapest
+                                      ? Colors.white
+                                      : Colors.orange[800],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
-                            if (savings > 0)
-                              Text(
-                                "Save \$${savings.toStringAsFixed(2)}",
-                                style: const TextStyle(
-                                    fontSize: 11, color: Colors.green),
-                              ),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          // Fly map to this station's city
-                          final coords = _cityCoords(s['city'] as String);
-                          _mapController?.animateCamera(
-                            CameraUpdate.newLatLngZoom(coords, 13),
+                            title: Text(
+                              s['name'] as String,
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: Text(s['city'] as String,
+                                style: const TextStyle(fontSize: 12)),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "${price.toStringAsFixed(1)}¢/L",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: isCheapest
+                                        ? Colors.green
+                                        : Colors.black87,
+                                  ),
+                                ),
+                                if (savings > 0)
+                                  Text(
+                                    "Save \$${savings.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                        fontSize: 11, color: Colors.green),
+                                  ),
+                              ],
+                            ),
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              final coords = _cityCoords(s['city'] as String);
+                              _mapController?.animateCamera(
+                                CameraUpdate.newLatLngZoom(coords, 13),
+                              );
+                            },
                           );
                         },
                       );
