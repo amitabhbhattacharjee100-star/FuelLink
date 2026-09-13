@@ -1,4 +1,4 @@
-package com.example.gas_price_compare
+package com.amitabh.fuellink
 
 import io.flutter.embedding.android.FlutterActivity
 
